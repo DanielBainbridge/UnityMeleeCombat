@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using Unity.VisualScripting;
+using UnityEngine.UI;
 
 [CustomEditor(typeof(CombatItem))]
 public class CombatItemEditor : Editor
@@ -18,7 +19,7 @@ public class CombatItemEditor : Editor
         m_moves = serializedObject.FindProperty("m_moves");
         m_hurtBoxes = serializedObject.FindProperty("m_hurtBoxes");
         //defines variable as a Combat Item
-        m_thisCombatItem = (CombatItem)target;
+        m_thisCombatItem = target.GetComponent<CombatItem>();
     }
     public override void OnInspectorGUI()
     {
@@ -33,6 +34,7 @@ public class CombatItemEditor : Editor
         {
             //heading label
             EditorGUILayout.LabelField("Hurt Box Editing", EditorStyles.boldLabel);
+            EditorGUILayout.Space(5);
             //creates a horizontal group for the next two buttons
             GUILayout.BeginHorizontal();
             //creates a button in style that aligns button to a side
@@ -46,24 +48,34 @@ public class CombatItemEditor : Editor
             }
             //ends horizontal group for buttons
             GUILayout.EndHorizontal();
-            
-            if(m_hurtBoxes.arraySize != 0)
-            {
-                EditorGUILayout.PropertyField(m_hurtBoxes);
-            }
+
+            EditorGUILayout.PropertyField(m_hurtBoxes);
+
             //more spacing
             EditorGUILayout.Space(10);
             //more header
             EditorGUILayout.LabelField("Hit Box Editing", EditorStyles.boldLabel);
-            if(GUILayout.Button("Add Move To Combat Item", EditorStyles.miniButton))
+            if(GUILayout.Button("Add Move"))
             {
                 m_thisCombatItem.AddMove();
             }
-
-            if(m_moves.arraySize != 0)
+            if(GUILayout.Button("Remove Move"))
             {
-                EditorGUILayout.PropertyField(m_moves);
+                m_thisCombatItem.RemoveMove();
             }
+            EditorGUILayout.Space(5);
+            
+            for(int i = 0; i < m_moves.arraySize; i++)
+            {
+                EditorGUILayout.LabelField("Move: " + (i + 1), EditorStyles.boldLabel);
+                SerializedProperty currentMoveAnimation = m_moves.GetArrayElementAtIndex(i).FindPropertyRelative("m_moveAnimation");
+                EditorGUILayout.PropertyField(currentMoveAnimation);
+                if(currentMoveAnimation.objectReferenceValue != null)
+                {
+                    EditorGUILayout.PropertyField(m_moves.GetArrayElementAtIndex(i).FindPropertyRelative("m_moveHitBoxes"), false);
+                }
+            }
+
         }
         serializedObject.ApplyModifiedProperties();
     }

@@ -27,49 +27,12 @@ public class CombatItem : MonoBehaviour
     }
     public void AddMove()
     {
-        m_moves.Add(new Move());
+        Move newMove = new Move();
+        newMove.m_animator = m_animator;
+        m_moves.Add(newMove);
     }
-
-    //dependent structs
-    [Serializable]
-    public struct HitBoxConstructor
+    public void RemoveMove()
     {
-        enum Shape
-        {
-            Box,
-            Sphere,
-            Capsule
-        }
-        [SerializeField] Transform m_parentTransform;
-        [SerializeField] Shape m_shape;
-        [SerializeField] int m_startFrame;
-        [SerializeField] int m_endFrame;
-        [SerializeField] bool m_automaticDamageCalculation;
-        [SerializeField] float m_damage;
-        [SerializeField] float m_knockbackDistance;
-        [SerializeField] bool m_automaticKnockbackAngle;
-        [SerializeField] Vector3 m_knockbackAngle;
-        void ConstructHitbox()
-        {
-            //Instantiate(GameObject crap)
-        }
+        m_moves.RemoveAt(m_moves.Count - 1);
     }
-    [Serializable]
-    public struct Move
-    {
-        public Animation m_moveAnimation;
-        private int m_totalAnimationFrames;
-        private int m_currentAnimationFrame;
-        [SerializeField]
-        private List<HitBoxConstructor> m_moveHitboxes;
-
-        void UseMove()
-        {
-            //Play Animation
-            //For Each Frame of animation step check if there is a hitbox starting or ending on that frame,
-            //If there is call for the creation/destruction of the hitbox
-            //At the end of the move set current frame to first frame
-        }
-    }
-
 }
