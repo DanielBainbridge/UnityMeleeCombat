@@ -204,13 +204,32 @@ MonoBehaviour:
     m_moveHitBoxes:
     - m_parentTransform: {fileID: 0}
       m_shape: 0
+      m_startFrame: 35
+      m_endFrame: 62
+      m_automaticDamageCalculation: 0
+      m_damage: 60
+      m_knockbackDistance: 0
+      m_automaticKnockbackAngle: 0
+      m_knockbackAngle: {x: 10, y: 10, z: 10}
+      m_width: 0
+      m_height: 0
+      m_depth: 0
+      m_radius: 0
+      m_length: 0
+    - m_parentTransform: {fileID: 0}
+      m_shape: 0
       m_startFrame: 0
-      m_endFrame: 0
+      m_endFrame: 16
       m_automaticDamageCalculation: 0
       m_damage: 0
       m_knockbackDistance: 0
       m_automaticKnockbackAngle: 0
       m_knockbackAngle: {x: 0, y: 0, z: 0}
+      m_width: 0
+      m_height: 0
+      m_depth: 0
+      m_radius: 0
+      m_length: 0
   m_hurtBoxes: []
 --- !u!95 &218518055
 Animator:

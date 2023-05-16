@@ -19,19 +19,19 @@ public class HitBox
 
     [SerializeField] Transform m_parentTransform;
     [SerializeField] Shape m_shape;
-    [SerializeField] int m_startFrame;
-    [SerializeField] int m_endFrame;
-    [SerializeField] bool m_automaticDamageCalculation;
+    [SerializeField] int m_startFrame = 0;
+    [SerializeField] int m_endFrame = 1;
+    [SerializeField] [Tooltip("Calculate Damage Automatically based on animation length and hit box alive time, NOT RECOMMENDED BUT A FEATURE")] bool m_automaticDamageCalculation;
     [SerializeField] float m_damage;
     [SerializeField] float m_knockbackDistance;
-    [SerializeField] bool m_automaticKnockbackAngle;
+    [SerializeField] [Tooltip("Calculate Knockback Automatically based on angle that hitbox hits a hurtbox, NOT RECOMMENDED BUT A FEATURE")] bool m_automaticKnockbackAngle;
     [SerializeField] Vector3 m_knockbackAngle;
 
     //box
-    private float m_width, m_height, m_depth;
+    [SerializeField] private float m_width, m_height, m_depth;
 
     //sphere and capsule
-    private float m_radius, m_length;
+    [SerializeField] private float m_radius, m_length;
 
 
 

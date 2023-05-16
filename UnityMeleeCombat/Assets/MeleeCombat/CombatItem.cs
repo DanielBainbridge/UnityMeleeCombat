@@ -1,8 +1,5 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Unity.VisualScripting;
 
 [RequireComponent(typeof(Animator))]
 [ExecuteInEditMode]
@@ -13,7 +10,11 @@ public class CombatItem : MonoBehaviour
     [SerializeField] private List<Move> m_moves;
     [SerializeField] private List<HurtBox> m_hurtBoxes;
 
-    
+    private void OnEnable()
+    {
+        m_animator = GetComponent<Animator>();
+    }
+
     public void GenerateHurtBoxes()
     {
         Debug.Log("Generate Hurt Boxes Button Pressed");
@@ -33,6 +34,16 @@ public class CombatItem : MonoBehaviour
     }
     public void RemoveMove()
     {
-        m_moves.RemoveAt(m_moves.Count - 1);
+        if (m_moves.Count != 0)
+            m_moves.RemoveAt(m_moves.Count - 1);
+    }
+    public void AddHitBoxToMove(int moveNumber)
+    {
+        m_moves[moveNumber].m_moveHitBoxes.Add(new HitBox());
+    }
+    public void RemoveHitBoxFromMove(int moveNumber)
+    {
+        if (m_moves.Count != 0 && m_moves[moveNumber].m_moveHitBoxes.Count != 0)
+            m_moves[moveNumber].m_moveHitBoxes.RemoveAt(m_moves[moveNumber].m_moveHitBoxes.Count - 1);
     }
 }

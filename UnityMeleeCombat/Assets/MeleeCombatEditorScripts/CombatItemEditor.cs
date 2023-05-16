@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEditor;
 using Unity.VisualScripting;
 using UnityEngine.UI;
+using Mono.Cecil.Cil;
+using UnityEngine.Assertions;
+using UnityEngine.Rendering;
 
 [CustomEditor(typeof(CombatItem))]
 public class CombatItemEditor : Editor
@@ -55,27 +58,108 @@ public class CombatItemEditor : Editor
             EditorGUILayout.Space(10);
             //more header
             EditorGUILayout.LabelField("Hit Box Editing", EditorStyles.boldLabel);
-            if(GUILayout.Button("Add Move"))
+            if (GUILayout.Button(" + Add Move + "))
             {
                 m_thisCombatItem.AddMove();
             }
-            if(GUILayout.Button("Remove Move"))
+            if (GUILayout.Button(" - Remove Move - "))
             {
                 m_thisCombatItem.RemoveMove();
             }
             EditorGUILayout.Space(5);
-            
-            for(int i = 0; i < m_moves.arraySize; i++)
-            {
-                EditorGUILayout.LabelField("Move: " + (i + 1), EditorStyles.boldLabel);
-                SerializedProperty currentMoveAnimation = m_moves.GetArrayElementAtIndex(i).FindPropertyRelative("m_moveAnimation");
-                EditorGUILayout.PropertyField(currentMoveAnimation);
-                if(currentMoveAnimation.objectReferenceValue != null)
-                {
-                    EditorGUILayout.PropertyField(m_moves.GetArrayElementAtIndex(i).FindPropertyRelative("m_moveHitBoxes"), false);
-                }
-            }
 
+            for (int i = 0; i < m_moves.arraySize; i++)
+            {
+                bool foldoutHeaderMoves = true;
+                foldoutHeaderMoves = EditorGUILayout.BeginFoldoutHeaderGroup(foldoutHeaderMoves, "Move: " + (i + 1));
+
+                //EditorGUILayout.LabelField("Move: " + (i + 1), EditorStyles.boldLabel);
+                if (foldoutHeaderMoves)
+                {
+                    SerializedProperty currentMoveAnimation = m_moves.GetArrayElementAtIndex(i).FindPropertyRelative("m_moveAnimation");
+                    EditorGUILayout.PropertyField(currentMoveAnimation);
+
+                    if (currentMoveAnimation.objectReferenceValue != null)
+                    {
+                        EditorGUILayout.Space(10);
+                        SerializedProperty moveHitBoxesProperties = m_moves.GetArrayElementAtIndex(i).FindPropertyRelative("m_moveHitBoxes");
+                        EditorGUILayout.BeginHorizontal();
+                        if (GUILayout.Button(" + Add Hit Box + ", EditorStyles.miniButtonLeft))
+                        {
+                            m_thisCombatItem.AddHitBoxToMove(i);
+                        }
+                        if (GUILayout.Button(" - Remove Hit Box - ", EditorStyles.miniButtonRight))
+                        {
+                            m_thisCombatItem.RemoveHitBoxFromMove(i);
+                        }
+                        EditorGUILayout.EndHorizontal();
+
+                        EditorGUILayout.PropertyField(moveHitBoxesProperties, false);
+                        for (int j = 0; j < moveHitBoxesProperties.arraySize; j++)
+                        {
+                            EditorGUILayout.LabelField("Hit Box: " + (j + 1), EditorStyles.boldLabel);
+
+                            EditorGUILayout.PropertyField(moveHitBoxesProperties.GetArrayElementAtIndex(j).FindPropertyRelative("m_parentTransform"));
+
+                            //shape stuff
+                            EditorGUILayout.Space(5);
+                            EditorGUILayout.PropertyField(moveHitBoxesProperties.GetArrayElementAtIndex(j).FindPropertyRelative("m_shape"));
+                            EditorGUI.indentLevel++;
+
+                            switch ((moveHitBoxesProperties.GetArrayElementAtIndex(j).FindPropertyRelative("m_shape").enumValueIndex))
+                            {
+
+                                case 0:
+                                    EditorGUILayout.PropertyField(moveHitBoxesProperties.GetArrayElementAtIndex(j).FindPropertyRelative("m_width"));
+                                    EditorGUILayout.PropertyField(moveHitBoxesProperties.GetArrayElementAtIndex(j).FindPropertyRelative("m_height"));
+                                    EditorGUILayout.PropertyField(moveHitBoxesProperties.GetArrayElementAtIndex(j).FindPropertyRelative("m_depth"));
+                                    break;
+
+                                case 1:
+                                    EditorGUILayout.PropertyField(moveHitBoxesProperties.GetArrayElementAtIndex(j).FindPropertyRelative("m_radius"));
+                                    break;
+
+                                case 2:
+                                    EditorGUILayout.PropertyField(moveHitBoxesProperties.GetArrayElementAtIndex(j).FindPropertyRelative("m_radius"));
+                                    EditorGUILayout.PropertyField(moveHitBoxesProperties.GetArrayElementAtIndex(j).FindPropertyRelative("m_height"));
+                                    break;
+                            }
+
+                            EditorGUI.indentLevel--;
+                            EditorGUILayout.Space(10);
+
+                            //no longer shape stuff
+
+                            //animation frame stuff
+                            AnimationClip curAnimation = (AnimationClip)currentMoveAnimation.objectReferenceValue;
+                            EditorGUILayout.IntSlider(moveHitBoxesProperties.GetArrayElementAtIndex(j).FindPropertyRelative("m_startFrame"), 0, (int)(curAnimation.length * curAnimation.frameRate));
+                            EditorGUILayout.IntSlider(moveHitBoxesProperties.GetArrayElementAtIndex(j).FindPropertyRelative("m_endFrame"), 0, (int)(curAnimation.length * curAnimation.frameRate));
+                            Assert.IsTrue(moveHitBoxesProperties.GetArrayElementAtIndex(j).FindPropertyRelative("m_startFrame").intValue < moveHitBoxesProperties.GetArrayElementAtIndex(j).FindPropertyRelative("m_endFrame").intValue,
+                                $"Start Frame on Move: {i + 1} Hit Box: {j + 1} cannot be later than the end frame!");
+
+
+
+                            SerializedProperty autoDamage = moveHitBoxesProperties.GetArrayElementAtIndex(j).FindPropertyRelative("m_automaticDamageCalculation");
+                            EditorGUILayout.PropertyField(autoDamage);
+                            if (!autoDamage.boolValue)
+                            {
+                                EditorGUILayout.PropertyField(moveHitBoxesProperties.GetArrayElementAtIndex(j).FindPropertyRelative("m_damage"));
+                            }
+
+                            SerializedProperty autoKnockback = moveHitBoxesProperties.GetArrayElementAtIndex(j).FindPropertyRelative("m_automaticKnockbackAngle");
+                            EditorGUILayout.PropertyField(autoKnockback);
+                            if (!autoKnockback.boolValue)
+                            {
+                                EditorGUILayout.PropertyField(moveHitBoxesProperties.GetArrayElementAtIndex(j).FindPropertyRelative("m_knockbackAngle"));
+                            }
+                            EditorGUILayout.PropertyField(moveHitBoxesProperties.GetArrayElementAtIndex(j).FindPropertyRelative("m_knockbackDistance"));
+                            EditorGUILayout.Space(5);
+                        }
+                    }
+                    EditorGUILayout.Space(10);
+                }
+                EditorGUILayout.EndFoldoutHeaderGroup();
+            }
         }
         serializedObject.ApplyModifiedProperties();
     }
