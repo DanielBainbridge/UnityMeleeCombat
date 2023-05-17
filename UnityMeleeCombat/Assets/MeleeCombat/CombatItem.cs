@@ -9,6 +9,8 @@ public class CombatItem : MonoBehaviour
     [SerializeField] private Animator m_animator;
     [SerializeField] private List<Move> m_moves;
     [SerializeField] private List<HurtBox> m_hurtBoxes;
+    [SerializeField] private bool m_debugHurtBoxes;
+    [SerializeField] private bool m_debugHitBoxes;
 
     private void OnEnable()
     {
@@ -21,11 +23,49 @@ public class CombatItem : MonoBehaviour
         //Do stuff on button press dummy
     }
 
-    public void AddHurtBox()
+    public void AddHurtBoxBox()
     {
-        Debug.Log("Add Hurt Box Button Pressed");
-        //Do stuff on button press dummy
+        GameObject newHurtBox = new GameObject();
+        newHurtBox.AddComponent<HurtBox>();
+        newHurtBox.GetComponent<HurtBox>().m_owner = this;
+        newHurtBox.transform.parent = transform;
+        newHurtBox.name = $"Hurt Box {m_hurtBoxes.Count + 1}";
+
+        BoxCollider box = new BoxCollider();
+
+        if (GetComponentInChildren<MeshRenderer>())
+        {
+            box.center = GetComponentInChildren<MeshRenderer>().bounds.center;
+            box.size = GetComponentInChildren<MeshRenderer>().bounds.extents;
+        }
+        else if (GetComponentInChildren<SkinnedMeshRenderer>())
+        {
+            box.center = GetComponentInChildren<MeshRenderer>().bounds.center;
+            box.size = GetComponentInChildren<MeshRenderer>().bounds.extents;
+        }
+
+        newHurtBox.GetComponent<HurtBox>().m_collider = box;
+
+        m_hurtBoxes.Add(newHurtBox.GetComponent<HurtBox>());
     }
+
+    public void RemoveHurtBox()
+    {
+        if (m_hurtBoxes.Count != 0)
+        {
+            DestroyImmediate(m_hurtBoxes[m_hurtBoxes.Count - 1]);
+            m_hurtBoxes.RemoveAt(m_hurtBoxes.Count - 1);
+        }
+    }
+    public void ClearHurtBoxes()
+    {
+        foreach (HurtBox hB in m_hurtBoxes)
+        {
+            DestroyImmediate(hB);
+        }
+        m_hurtBoxes.Clear();
+    }
+
     public void AddMove()
     {
         Move newMove = new Move();

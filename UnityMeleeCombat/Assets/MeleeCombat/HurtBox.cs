@@ -4,5 +4,6 @@ using UnityEngine;
 
 public class HurtBox : MonoBehaviour
 {
-    CombatItem m_owner;
+    [HideInInspector] public CombatItem m_owner;
+    [HideInInspector] public Collider m_collider;
 }
