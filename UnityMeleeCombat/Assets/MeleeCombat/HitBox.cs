@@ -17,6 +17,7 @@ public class HitBox
         Capsule
     }
 
+    [HideInInspector] public CombatItem m_owner;
     [SerializeField] Transform m_parentTransform;
     [SerializeField] Shape m_shape;
     [SerializeField] int m_startFrame = 0;
