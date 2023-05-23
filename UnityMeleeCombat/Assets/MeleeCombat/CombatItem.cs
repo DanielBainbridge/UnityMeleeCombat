@@ -25,94 +25,72 @@ public class CombatItem : MonoBehaviour
 
     public void AddHurtBoxBox()
     {
-        GameObject newHurtBox = new GameObject();
-        newHurtBox.AddComponent<HurtBox>();
-        newHurtBox.GetComponent<HurtBox>().m_owner = this;
-        newHurtBox.transform.parent = transform;
-        newHurtBox.name = $"Hurt Box {m_hurtBoxes.Count + 1}";
-
-        BoxCollider box = newHurtBox.AddComponent<BoxCollider>();
+        HurtBox newHurtBox = new HurtBox(HurtBox.Shape.Box, transform);
+        newHurtBox.NameHurtBoxObject($"Hurt Box {m_hurtBoxes.Count + 1}: Box");
 
         if (GetComponentInChildren<MeshRenderer>())
         {
-            box.center = GetComponentInChildren<MeshRenderer>().bounds.center;
-            box.size = GetComponentInChildren<MeshRenderer>().bounds.extents * 2.0f;
+            newHurtBox.SetBoxHurtBoxObject(GetComponentInChildren<MeshRenderer>().bounds.extents, GetComponentInChildren<MeshRenderer>().bounds.center);
         }
         else if (GetComponentInChildren<SkinnedMeshRenderer>())
         {
-            box.center = GetComponentInChildren<SkinnedMeshRenderer>().bounds.center;
-            box.size = GetComponentInChildren<SkinnedMeshRenderer>().bounds.extents * 2.0f;
+            newHurtBox.SetBoxHurtBoxObject(GetComponentInChildren<SkinnedMeshRenderer>().bounds.extents, GetComponentInChildren<SkinnedMeshRenderer>().bounds.center);
         }
 
-        newHurtBox.GetComponent<HurtBox>().m_collider = box;
-
-        m_hurtBoxes.Add(newHurtBox.GetComponent<HurtBox>());
+        m_hurtBoxes.Add(newHurtBox);
     }
     public void AddHurtBoxSphere()
     {
-        HurtBox newHurtBox = new HurtBox();
-        newHurtBox.m_owner = this;
-        newHurtBox.transform.parent = transform;
-        newHurtBox.name = $"Hurt Box {m_hurtBoxes.Count + 1}";
-
-        SphereCollider sphere = newHurtBox.AddComponent<SphereCollider>();
+        HurtBox newHurtBox = new HurtBox(HurtBox.Shape.Sphere, transform);
+        newHurtBox.NameHurtBoxObject($"Hurt Box {m_hurtBoxes.Count + 1}: Sphere");
 
         if (GetComponentInChildren<MeshRenderer>())
         {
-            sphere.center = GetComponentInChildren<MeshRenderer>().bounds.center;
-            sphere.radius = GetComponentInChildren<MeshRenderer>().bounds.extents.y;
+            newHurtBox.SetSphereHurtBoxObject(GetComponentInChildren<MeshRenderer>().bounds.extents.y, GetComponentInChildren<MeshRenderer>().bounds.center);
         }
         else if (GetComponentInChildren<SkinnedMeshRenderer>())
         {
-            sphere.radius = GetComponentInChildren<SkinnedMeshRenderer>().bounds.extents.y;
-            sphere.center = GetComponentInChildren<SkinnedMeshRenderer>().bounds.center;
+            newHurtBox.SetSphereHurtBoxObject(GetComponentInChildren<SkinnedMeshRenderer>().bounds.extents.y, GetComponentInChildren<SkinnedMeshRenderer>().bounds.center);
         }
 
-        newHurtBox.GetComponent<HurtBox>().m_collider = sphere;
-
-        m_hurtBoxes.Add(newHurtBox.GetComponent<HurtBox>());
+        m_hurtBoxes.Add(newHurtBox);
     }
     public void AddHurtBoxCapsule()
     {
-        GameObject newHurtBox = new GameObject();
-        newHurtBox.AddComponent<HurtBox>();
-        newHurtBox.GetComponent<HurtBox>().m_owner = this;
-        newHurtBox.transform.parent = transform;
-        newHurtBox.name = $"Hurt Box {m_hurtBoxes.Count + 1}";
-
-        CapsuleCollider capsule = newHurtBox.AddComponent<CapsuleCollider>();
+        HurtBox newHurtBox = new HurtBox(HurtBox.Shape.Capsule, transform);
+        newHurtBox.NameHurtBoxObject($"Hurt Box {m_hurtBoxes.Count + 1}: Capsule");
 
         if (GetComponentInChildren<MeshRenderer>())
         {
-            capsule.center = GetComponentInChildren<MeshRenderer>().bounds.center;
-            capsule.height = GetComponentInChildren<MeshRenderer>().bounds.extents.y;
-            capsule.radius = GetComponentInChildren<MeshRenderer>().bounds.extents.x;
+            newHurtBox.SetCapsuleHurtBoxObject(
+            GetComponentInChildren<MeshRenderer>().bounds.extents.x,
+            GetComponentInChildren<MeshRenderer>().bounds.extents.y,
+            GetComponentInChildren<MeshRenderer>().bounds.center);
         }
         else if (GetComponentInChildren<SkinnedMeshRenderer>())
         {
-            capsule.center = GetComponentInChildren<SkinnedMeshRenderer>().bounds.center;
-            capsule.height = GetComponentInChildren<SkinnedMeshRenderer>().bounds.extents.y;
-            capsule.radius = GetComponentInChildren<SkinnedMeshRenderer>().bounds.extents.x;
+            newHurtBox.SetCapsuleHurtBoxObject(
+            GetComponentInChildren<SkinnedMeshRenderer>().bounds.extents.x,
+            GetComponentInChildren<SkinnedMeshRenderer>().bounds.extents.y,
+            GetComponentInChildren<SkinnedMeshRenderer>().bounds.center);
         }
 
-        newHurtBox.GetComponent<HurtBox>().m_collider = capsule;
-
-        m_hurtBoxes.Add(newHurtBox.GetComponent<HurtBox>());
+        m_hurtBoxes.Add(newHurtBox);
     }
 
     public void RemoveHurtBox()
     {
         if (m_hurtBoxes.Count != 0)
         {
-            DestroyImmediate(m_hurtBoxes[m_hurtBoxes.Count - 1].gameObject);
+            m_hurtBoxes[m_hurtBoxes.Count - 1].DestroyHurtBox();
             m_hurtBoxes.RemoveAt(m_hurtBoxes.Count - 1);
         }
     }
     public void ClearHurtBoxes()
     {
         foreach (HurtBox hB in m_hurtBoxes)
-        {
-            DestroyImmediate(hB.gameObject);
+        {           
+            hB.DestroyHurtBox();
         }
         m_hurtBoxes.Clear();
     }

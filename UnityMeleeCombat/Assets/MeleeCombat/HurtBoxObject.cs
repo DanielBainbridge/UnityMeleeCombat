@@ -7,5 +7,12 @@ using UnityEngine;
 
 class HurtBoxObject : MonoBehaviour
 {
-    HurtBox m_hurtbox;
+    [HideInInspector] public HurtBox m_hurtbox;
+
+    public void StupidDestroyHurtBox()
+    {
+        DestroyImmediate(this.gameObject);
+    }
+
+
 }

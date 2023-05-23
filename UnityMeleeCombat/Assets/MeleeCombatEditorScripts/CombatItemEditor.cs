@@ -87,13 +87,11 @@ public class CombatItemEditor : Editor
         {
             //get current hurt box
             SerializedProperty currentHurtBox = m_hurtBoxes.GetArrayElementAtIndex(i);
-            EditorGUILayout.PropertyField(currentHurtBox, new GUIContent($"Hurt Box: {i + 1}"), false);
+            EditorGUILayout.PropertyField(currentHurtBox, new GUIContent($"Hurt Box: {i + 1} {currentHurtBox.FindPropertyRelative("m_shape").enumNames}"), false);
             if (!currentHurtBox.isExpanded)
             {
                 continue;
             }
-            SerializedProperty hurtBoxCollider = currentHurtBox.FindPropertyRelative("m_collider");
-            EditorGUILayout.PropertyField(hurtBoxCollider);
 
             switch ((currentHurtBox.FindPropertyRelative("m_shape").enumValueIndex))
             {
@@ -101,14 +99,17 @@ public class CombatItemEditor : Editor
                     EditorGUILayout.PropertyField(currentHurtBox.FindPropertyRelative("m_width"));
                     EditorGUILayout.PropertyField(currentHurtBox.FindPropertyRelative("m_height"));
                     EditorGUILayout.PropertyField(currentHurtBox.FindPropertyRelative("m_depth"));
+                    EditorGUILayout.PropertyField(currentHurtBox.FindPropertyRelative("m_center"));
                     break;
                 case 1:
                     EditorGUILayout.PropertyField(currentHurtBox.FindPropertyRelative("m_radius"));
+                    EditorGUILayout.PropertyField(currentHurtBox.FindPropertyRelative("m_center"));
                     break;
 
                 case 2:
                     EditorGUILayout.PropertyField(currentHurtBox.FindPropertyRelative("m_radius"));
                     EditorGUILayout.PropertyField(currentHurtBox.FindPropertyRelative("m_height"));
+                    EditorGUILayout.PropertyField(currentHurtBox.FindPropertyRelative("m_center"));
                     break;
             }
 
@@ -185,7 +186,6 @@ public class CombatItemEditor : Editor
                 }
                 EditorGUI.indentLevel++;
                 EditorGUILayout.PropertyField(currentHitbox.FindPropertyRelative("m_parentTransform"));
-                Debug.Log("Control: " + currentHitbox.FindPropertyRelative("m_parentTransform").propertyPath);
                 //shape stuff
                 EditorGUILayout.Space(5);
                 EditorGUILayout.PropertyField(currentHitbox.FindPropertyRelative("m_shape"));
