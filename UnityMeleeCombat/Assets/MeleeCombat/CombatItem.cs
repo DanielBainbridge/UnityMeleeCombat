@@ -8,7 +8,7 @@ public class CombatItem : MonoBehaviour
     //the combat items stuff itself
     [SerializeField] private Animator m_animator;
     [SerializeField] private List<Move> m_moves;
-    [SerializeField] private List<HurtBox> m_hurtBoxes;
+    [SerializeField] public List<HurtBox> m_hurtBoxes;
     [SerializeField] private bool m_debugHurtBoxes;
     [SerializeField] private bool m_debugHitBoxes;
 
@@ -114,5 +114,12 @@ public class CombatItem : MonoBehaviour
     {
         if (m_moves.Count != 0 && m_moves[moveNumber].m_moveHitBoxes.Count != 0)
             m_moves[moveNumber].m_moveHitBoxes.RemoveAt(m_moves[moveNumber].m_moveHitBoxes.Count - 1);
+    }
+    public void UpdateMoveTotalFrames()
+    {
+        foreach(Move m in m_moves)
+        {
+            m.SetTotalFrames();
+        }
     }
 }

@@ -1,8 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using TMPro;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -33,7 +31,7 @@ public class HurtBox
     [SerializeField] private float m_width, m_height, m_depth;
 
     //sphere and capsule
-    [SerializeField] private float m_radius, m_length;
+    [SerializeField] private float m_radius;
 
     HurtBox ConstructHurtbox()
     {
@@ -45,12 +43,15 @@ public class HurtBox
         {
             case Shape.Box:
                 BoxCollider boxCollider = newHurtBoxObject.AddComponent<BoxCollider>();
+                boxCollider.isTrigger = true;
                 break;
             case Shape.Sphere:
                 SphereCollider sphereCollider = newHurtBoxObject.AddComponent<SphereCollider>();
+                sphereCollider.isTrigger = true;
                 break;
             case Shape.Capsule:
                 CapsuleCollider capsuleCollider = newHurtBoxObject.AddComponent<CapsuleCollider>();
+                capsuleCollider.isTrigger = true;
                 break;
         }
 
@@ -71,7 +72,7 @@ public class HurtBox
         {
             case Shape.Box:
                 BoxCollider boxCollider = m_hurtBoxObject.GetComponent<BoxCollider>();
-                boxCollider.size = new Vector3(m_length, m_height, m_depth);
+                boxCollider.size = new Vector3(m_width, m_height, m_depth);
                 boxCollider.center = m_center;
                 break;
             case Shape.Sphere:
@@ -89,8 +90,9 @@ public class HurtBox
     }
     public void SetBoxHurtBoxObject(Vector3 extents, Vector3 center)
     {
-        m_hurtBoxObject.GetComponent<BoxCollider>().size = extents * 2.0f;
-        m_length = extents.x; m_height = extents.y; m_depth = extents.z;
+        extents *= 2.0f;
+        m_hurtBoxObject.GetComponent<BoxCollider>().size = extents;
+        m_width = extents.x; m_height = extents.y; m_depth = extents.z;
         m_hurtBoxObject.GetComponent<BoxCollider>().center = m_center = center;
     }
     public void SetSphereHurtBoxObject(float radius, Vector3 center)

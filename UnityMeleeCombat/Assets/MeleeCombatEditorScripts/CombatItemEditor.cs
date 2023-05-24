@@ -3,18 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using Unity.VisualScripting;
-using UnityEngine.UI;
-using Mono.Cecil.Cil;
 using UnityEngine.Assertions;
-using UnityEngine.Rendering;
 
 [CustomEditor(typeof(CombatItem))]
 public class CombatItemEditor : Editor
 {
+    //properties
     SerializedProperty m_animator;
     SerializedProperty m_moves;
     SerializedProperty m_hurtBoxes;
+
+    //actual items
     CombatItem m_thisCombatItem;
+    List<HurtBox> m_thisCombatItemHurtBoxes;
     public void OnEnable()
     {
         //finds and defines serialized variables from the target object
@@ -23,6 +24,7 @@ public class CombatItemEditor : Editor
         m_hurtBoxes = serializedObject.FindProperty("m_hurtBoxes");
         //defines variable as a Combat Item
         m_thisCombatItem = target.GetComponent<CombatItem>();
+        m_thisCombatItemHurtBoxes = m_thisCombatItem.m_hurtBoxes;
     }
     public override void OnInspectorGUI()
     {
@@ -75,10 +77,12 @@ public class CombatItemEditor : Editor
         if (GUILayout.Button("- Remove Hurt Box -", EditorStyles.miniButton))
         {
             m_thisCombatItem.RemoveHurtBox();
+            m_thisCombatItemHurtBoxes.Clear();
         }
         if (GUILayout.Button("- Clear Hurt Boxes -", EditorStyles.miniButton))
         {
             m_thisCombatItem.ClearHurtBoxes();
+            m_thisCombatItemHurtBoxes.Clear();
         }
         //ends horizontal group for buttons
         GUILayout.EndHorizontal();
@@ -87,12 +91,12 @@ public class CombatItemEditor : Editor
         {
             //get current hurt box
             SerializedProperty currentHurtBox = m_hurtBoxes.GetArrayElementAtIndex(i);
-            EditorGUILayout.PropertyField(currentHurtBox, new GUIContent($"Hurt Box: {i + 1} {currentHurtBox.FindPropertyRelative("m_shape").enumNames}"), false);
+            EditorGUILayout.PropertyField(currentHurtBox, new GUIContent($"Hurt Box: {i + 1} {currentHurtBox.FindPropertyRelative("m_shape").enumNames[currentHurtBox.FindPropertyRelative("m_shape").enumValueIndex]}"), false);
             if (!currentHurtBox.isExpanded)
             {
                 continue;
             }
-
+            EditorGUI.indentLevel++;
             switch ((currentHurtBox.FindPropertyRelative("m_shape").enumValueIndex))
             {
                 case 0:
@@ -112,20 +116,13 @@ public class CombatItemEditor : Editor
                     EditorGUILayout.PropertyField(currentHurtBox.FindPropertyRelative("m_center"));
                     break;
             }
-
-            //Debug.Log("After Find Relative: " + hurtBoxCollider.propertyPath);
-
-            //EditorGUILayout.PropertyField(hurtBoxCollider);
-
-            //Debug.Log(hurtBoxCollider.serializedObject.targetObject.name);
-            //EditorGUILayout.PropertyField(hurtboxCollider, new GUIContent("Collider"));
-            //Collider actualCollider = hurtboxCollider.objectReferenceValue.GetComponent<Collider>();
-            //if (actualCollider.TryGetComponent<BoxCollider>(out BoxCollider bC))
-            //{
-            //    EditorGUILayout.PropertyField();
-            //    EditorGUILayout.PropertyField(hurtboxCollider.serializedObject);
-            //}
+            EditorGUI.indentLevel--;
         }
+        for(int i= 0; i < m_thisCombatItemHurtBoxes.Count; i++)
+        {
+            m_thisCombatItemHurtBoxes[i].UpdateHurtBoxObject();
+        }
+
 
         // Hit Boxes
 
@@ -153,6 +150,7 @@ public class CombatItemEditor : Editor
             }
             SerializedProperty currentMoveAnimation = currentMove.FindPropertyRelative("m_moveAnimation");
             EditorGUILayout.PropertyField(currentMoveAnimation);
+            m_thisCombatItem.UpdateMoveTotalFrames();
             if (currentMoveAnimation.objectReferenceValue == null)
             {
                 continue;
@@ -235,6 +233,17 @@ public class CombatItemEditor : Editor
                 }
                 EditorGUILayout.PropertyField(currentHitbox.FindPropertyRelative("m_knockbackDistance"));
                 EditorGUILayout.Space(5);
+
+                SerializedProperty autoHitStop = currentHitbox.FindPropertyRelative("m_automaticHitStop");
+                EditorGUILayout.PropertyField(autoHitStop, new GUIContent("Auto Hit Stop"));
+                if (!autoHitStop.boolValue)
+                {
+                    EditorGUILayout.PropertyField(currentHitbox.FindPropertyRelative("m_hitStopLength"));
+                }
+                else
+                {
+                    EditorGUILayout.PropertyField(currentHitbox.FindPropertyRelative("m_hitStopMultiplier"));
+                }
                 EditorGUI.indentLevel--;
             }
         }
