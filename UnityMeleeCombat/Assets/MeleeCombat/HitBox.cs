@@ -52,14 +52,17 @@ public class HitBox
             case Shape.Box:
                 BoxCollider boxCollider = newHitBox.AddComponent<BoxCollider>();
                 boxCollider.isTrigger = true;
+                //set sizes of stuff
                 break;
             case Shape.Sphere:
                 SphereCollider sphereCollider = newHitBox.AddComponent<SphereCollider>();
                 sphereCollider.isTrigger = true;
+                //set sizes of stuff
                 break;
             case Shape.Capsule:
                 CapsuleCollider capsuleCollider = newHitBox.AddComponent<CapsuleCollider>();
                 capsuleCollider.isTrigger = true;
+                //set sizes of stuff
                 break;
         }
         return newHitBox.GetComponent<HitBoxObject>();

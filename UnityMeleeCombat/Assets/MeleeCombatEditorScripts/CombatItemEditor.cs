@@ -16,6 +16,7 @@ public class CombatItemEditor : Editor
     //actual items
     CombatItem m_thisCombatItem;
     List<HurtBox> m_thisCombatItemHurtBoxes;
+    List<Move> m_thisCombatItemMoves;
     public void OnEnable()
     {
         //finds and defines serialized variables from the target object
@@ -25,6 +26,7 @@ public class CombatItemEditor : Editor
         //defines variable as a Combat Item
         m_thisCombatItem = target.GetComponent<CombatItem>();
         m_thisCombatItemHurtBoxes = m_thisCombatItem.m_hurtBoxes;
+        m_thisCombatItemMoves = m_thisCombatItem.m_moves;
     }
     public override void OnInspectorGUI()
     {
@@ -150,7 +152,7 @@ public class CombatItemEditor : Editor
             }
             SerializedProperty currentMoveAnimation = currentMove.FindPropertyRelative("m_moveAnimation");
             EditorGUILayout.PropertyField(currentMoveAnimation);
-            m_thisCombatItem.UpdateMoveTotalFrames();
+            m_thisCombatItem.UpdateMove();
             if (currentMoveAnimation.objectReferenceValue == null)
             {
                 continue;
@@ -244,7 +246,14 @@ public class CombatItemEditor : Editor
                 {
                     EditorGUILayout.PropertyField(currentHitbox.FindPropertyRelative("m_hitStopMultiplier"));
                 }
+
+
                 EditorGUI.indentLevel--;
+            }
+
+            if(GUILayout.Button($"Use Move: {m_thisCombatItemMoves[i].m_moveName}"))
+            {
+                m_thisCombatItemMoves[i].UseMove();
             }
         }
         EditorGUILayout.Space(10);

@@ -27,6 +27,7 @@ public class HurtBox
     }
     [SerializeField] Shape m_shape;
 
+
     //box
     [SerializeField] private float m_width, m_height, m_depth;
 
