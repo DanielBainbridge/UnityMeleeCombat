@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 [Serializable]
@@ -21,8 +22,8 @@ public class HitBox
     [SerializeField] Transform m_parentTransform;
     [SerializeField] Vector3 m_offset;
     [SerializeField] Shape m_shape;
-    [SerializeField] int m_startFrame = 0;
-    [SerializeField] int m_endFrame = 1;
+    [SerializeField] public int m_startFrame = 0;
+    [SerializeField] public int m_endFrame = 1;
     [SerializeField][Tooltip("Calculate Damage Automatically based on animation length and hit box alive time, NOT RECOMMENDED BUT A FEATURE")] bool m_automaticDamageCalculation;
     [SerializeField] float m_damage;
     [SerializeField] float m_knockbackDistance;
@@ -31,6 +32,8 @@ public class HitBox
     [SerializeField][Tooltip("Calculate Hit Stop scaling with damage dealt, more damage more hit stop")] bool m_automaticHitStop;
     [SerializeField] float m_hitStopLength;
     [SerializeField] float m_hitStopMultiplier;
+    private HitBoxObject m_hitBoxObject;
+
 
     //box
     [SerializeField] private float m_width, m_height, m_depth;
@@ -40,7 +43,7 @@ public class HitBox
 
 
 
-    HitBoxObject ConstructHitbox()
+    public HitBoxObject ConstructHitbox()
     {
         //Instantiate(GameObject crap)
         GameObject newHitBox = new GameObject();
@@ -65,6 +68,12 @@ public class HitBox
                 //set sizes of stuff
                 break;
         }
-        return newHitBox.GetComponent<HitBoxObject>();
+        m_hitBoxObject = newHitBox.GetComponent<HitBoxObject>();
+        return m_hitBoxObject;
+    }
+
+    public void DestroyHitBoxObject()
+    {
+        GameObject.Destroy(m_hitBoxObject.gameObject);
     }
 }

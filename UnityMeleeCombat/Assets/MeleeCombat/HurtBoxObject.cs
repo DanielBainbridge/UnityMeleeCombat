@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-class HurtBoxObject : MonoBehaviour
+public class HurtBoxObject : MonoBehaviour
 {
     [HideInInspector] public HurtBox m_hurtbox;
 

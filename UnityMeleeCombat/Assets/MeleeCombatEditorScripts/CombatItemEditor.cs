@@ -89,7 +89,7 @@ public class CombatItemEditor : Editor
         //ends horizontal group for buttons
         GUILayout.EndHorizontal();
 
-        for(int i = 0; i < m_hurtBoxes.arraySize; i++)
+        for (int i = 0; i < m_hurtBoxes.arraySize; i++)
         {
             //get current hurt box
             SerializedProperty currentHurtBox = m_hurtBoxes.GetArrayElementAtIndex(i);
@@ -120,7 +120,7 @@ public class CombatItemEditor : Editor
             }
             EditorGUI.indentLevel--;
         }
-        for(int i= 0; i < m_thisCombatItemHurtBoxes.Count; i++)
+        for (int i = 0; i < m_thisCombatItemHurtBoxes.Count - 1; i++)
         {
             m_thisCombatItemHurtBoxes[i].UpdateHurtBoxObject();
         }
@@ -135,14 +135,16 @@ public class CombatItemEditor : Editor
         if (GUILayout.Button(" + Add Move + "))
         {
             m_thisCombatItem.AddMove();
+            m_thisCombatItemMoves = m_thisCombatItem.m_moves;
         }
         if (GUILayout.Button(" - Remove Move - "))
         {
             m_thisCombatItem.RemoveMove();
+            m_thisCombatItemMoves = m_thisCombatItem.m_moves;
         }
         EditorGUILayout.Space(5);
 
-        for (int i = 0; i < m_moves.arraySize; i++)
+        for (int i = 0; i < m_thisCombatItemMoves.Count - 1; i++)
         {
             SerializedProperty currentMove = m_moves.GetArrayElementAtIndex(i);
             EditorGUILayout.PropertyField(currentMove, new GUIContent($"Move: {i + 1}"), false);
@@ -251,10 +253,12 @@ public class CombatItemEditor : Editor
                 EditorGUI.indentLevel--;
             }
 
-            if(GUILayout.Button($"Use Move: {m_thisCombatItemMoves[i].m_moveName}"))
+
+            if (GUILayout.Button($"Use Move: {m_thisCombatItemMoves[i].m_moveName}"))
             {
                 m_thisCombatItemMoves[i].UseMove();
             }
+
         }
         EditorGUILayout.Space(10);
 

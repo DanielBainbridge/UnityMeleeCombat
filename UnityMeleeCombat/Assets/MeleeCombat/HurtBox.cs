@@ -34,7 +34,7 @@ public class HurtBox
     //sphere and capsule
     [SerializeField] private float m_radius;
 
-    HurtBox ConstructHurtbox()
+    HurtBoxObject ConstructHurtbox()
     {
         GameObject newHurtBoxObject = new GameObject();
         newHurtBoxObject.AddComponent<HurtBoxObject>();
@@ -57,7 +57,7 @@ public class HurtBox
         }
 
         m_hurtBoxObject = newHurtBoxObject.GetComponent<HurtBoxObject>();
-        return this;
+        return m_hurtBoxObject;
 
     }
 

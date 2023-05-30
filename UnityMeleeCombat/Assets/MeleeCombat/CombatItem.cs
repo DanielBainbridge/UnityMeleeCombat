@@ -123,6 +123,10 @@ public class CombatItem : MonoBehaviour
             {
                 m.m_moveName = m.m_moveAnimation.name;
                 m.SetTotalFrames();
+                if (!m.IsMoveInAnimator())
+                {
+                    m.AddMoveToAnimator();
+                }
             }
         }
     }
