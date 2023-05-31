@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEditor.Animations;
 using UnityEngine;
-using UnityEngine.Rendering.Universal;
 
 [Serializable]
 public class Move
@@ -13,30 +10,43 @@ public class Move
     public AnimationClip m_moveAnimation;
     public List<HitBox> m_moveHitBoxes;
     public string m_moveName;
+    public bool m_isBeingUsed;
 
 
     private int m_totalAnimationFrames;
     private int m_currentAnimationFrame = 0;
+
+    public int GetCurrentAnimationFrame()
+    {
+        return m_currentAnimationFrame;
+    }
+    public void IncrementAnimationFrame()
+    {
+        m_currentAnimationFrame++;
+    }
+    public void ResetCurrentFrame()
+    {
+        m_currentAnimationFrame = 0;
+    }
+
+    public int GetTotalAnimationFrames()
+    {
+        return m_totalAnimationFrames;
+    }
+
+    public float GetMoveFrameRate()
+    {
+        return m_moveAnimation.frameRate;
+    }
+
 
     public void SetTotalFrames()
     {
         m_totalAnimationFrames = (int)(m_moveAnimation.length * m_moveAnimation.frameRate);
     }
 
-    public void UseMove()
-    {
-        //make this a coroutine so that we can keep track of frames easier, make hitbox life time a coroutine?
-        //give yourself the
-        m_animator.Play(m_moveName);
 
-
-        //Play Animation
-        //For Each Frame of animation step check if there is a hitbox starting or ending on that frame,
-        //If there is call for the creation/destruction of the hitbox
-        //At the end of the move set current frame to first frame
-    }
-
-    private void ConstructHitBoxesPerFrame()
+    public void ConstructHitBoxesPerFrame()
     {
         foreach (HitBox hB in m_moveHitBoxes)
         {
@@ -46,7 +56,7 @@ public class Move
             }
         }
     }
-    private void DestroyHitBoxesPerFrame()
+    public void DestroyHitBoxesPerFrame()
     {
         foreach (HitBox hB in m_moveHitBoxes)
         {
@@ -57,33 +67,15 @@ public class Move
         }
     }
 
-
-    private IEnumerable PlayMoveFrame()
+    public void StartMove()
     {
-        if (m_currentAnimationFrame == 0)
-        {
-            m_animator.Play(m_moveName);
-        }
-
-        else if (m_currentAnimationFrame != m_totalAnimationFrames)
-        {
-            m_currentAnimationFrame++;
-
-            //construction and destruction functions are dependent on current animation frame
-            ConstructHitBoxesPerFrame();
-            DestroyHitBoxesPerFrame();
-
-            yield return new WaitForNextFrameUnit();
-            PlayMoveFrame();
-        }
-
-        else
-        {
-            m_currentAnimationFrame = 0;
-            yield return null;
-        }
-
+        m_animator.Play(m_moveName);
     }
+    public void StopMove()
+    {
+        m_animator.Play("No Motion");
+    }
+
 
     public bool IsMoveInAnimator()
     {

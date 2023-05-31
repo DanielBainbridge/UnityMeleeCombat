@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -123,6 +123,11 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!4 &95791018 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -2072040086291044643, guid: c67ec2dca62f2c94d884f52a93aa2462, type: 3}
+  m_PrefabInstance: {fileID: 218518052}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &218518052
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -202,35 +207,78 @@ MonoBehaviour:
   - m_animator: {fileID: 218518055}
     m_moveAnimation: {fileID: -203655887218126122, guid: 79c8717da6e7eb849a3deda337a04c34, type: 3}
     m_moveHitBoxes:
-    - m_parentTransform: {fileID: 0}
-      m_shape: 0
-      m_startFrame: 35
-      m_endFrame: 62
-      m_automaticDamageCalculation: 0
-      m_damage: 60
-      m_knockbackDistance: 0
-      m_automaticKnockbackAngle: 0
-      m_knockbackAngle: {x: 10, y: 10, z: 10}
-      m_width: 0
-      m_height: 0
-      m_depth: 0
-      m_radius: 0
-      m_length: 0
-    - m_parentTransform: {fileID: 0}
-      m_shape: 0
-      m_startFrame: 0
-      m_endFrame: 16
+    - m_owner: {fileID: 0}
+      m_parentTransform: {fileID: 825159897}
+      m_offset: {x: 0, y: 0, z: 0}
+      m_rotationOffset: {x: 0, y: 0, z: 0}
+      m_shape: 1
+      m_startFrame: 1
+      m_endFrame: 50
       m_automaticDamageCalculation: 0
       m_damage: 0
       m_knockbackDistance: 0
       m_automaticKnockbackAngle: 0
       m_knockbackAngle: {x: 0, y: 0, z: 0}
-      m_width: 0
-      m_height: 0
-      m_depth: 0
+      m_automaticHitStop: 0
+      m_hitStopLength: 0
+      m_hitStopMultiplier: 0
+      m_width: 3
+      m_height: 1
+      m_depth: 3
+      m_radius: 0.5
+    - m_owner: {fileID: 0}
+      m_parentTransform: {fileID: 218518056}
+      m_offset: {x: 0, y: 3, z: 3}
+      m_rotationOffset: {x: 0, y: 0, z: 0}
+      m_shape: 0
+      m_startFrame: 100
+      m_endFrame: 112
+      m_automaticDamageCalculation: 0
+      m_damage: 0
+      m_knockbackDistance: 0
+      m_automaticKnockbackAngle: 0
+      m_knockbackAngle: {x: 0, y: 0, z: 0}
+      m_automaticHitStop: 0
+      m_hitStopLength: 0
+      m_hitStopMultiplier: 0
+      m_width: 2
+      m_height: 5
+      m_depth: 2
       m_radius: 0
-      m_length: 0
+    m_moveName: Praying
+    m_isBeingUsed: 0
+  - m_animator: {fileID: 218518055}
+    m_moveAnimation: {fileID: -203655887218126122, guid: cf75f6d21dd6fa5418cea9a92cb59db0, type: 3}
+    m_moveHitBoxes:
+    - m_owner: {fileID: 0}
+      m_parentTransform: {fileID: 95791018}
+      m_offset: {x: 0, y: 0, z: 0}
+      m_rotationOffset: {x: 0, y: 90, z: 0}
+      m_shape: 2
+      m_startFrame: 7
+      m_endFrame: 21
+      m_automaticDamageCalculation: 0
+      m_damage: 0
+      m_knockbackDistance: 0
+      m_automaticKnockbackAngle: 0
+      m_knockbackAngle: {x: 0, y: 0, z: 0}
+      m_automaticHitStop: 0
+      m_hitStopLength: 0
+      m_hitStopMultiplier: 0
+      m_width: 0
+      m_height: 1
+      m_depth: 0
+      m_radius: 0.35
+    m_moveName: Martelo 2
+    m_isBeingUsed: 0
+  - m_animator: {fileID: 218518055}
+    m_moveAnimation: {fileID: 0}
+    m_moveHitBoxes: []
+    m_moveName: 
+    m_isBeingUsed: 0
   m_hurtBoxes: []
+  m_debugHurtBoxes: 0
+  m_debugHitBoxes: 1
 --- !u!95 &218518055
 Animator:
   serializedVersion: 4
@@ -241,7 +289,7 @@ Animator:
   m_GameObject: {fileID: 218518053}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: c67ec2dca62f2c94d884f52a93aa2462, type: 3}
-  m_Controller: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: c345f92be628fa541be03732d44fe05a, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -251,6 +299,11 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!4 &218518056 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: c67ec2dca62f2c94d884f52a93aa2462, type: 3}
+  m_PrefabInstance: {fileID: 218518052}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &667679082
 GameObject:
   m_ObjectHideFlags: 0
@@ -345,6 +398,11 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!4 &825159897 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1852576806548013000, guid: c67ec2dca62f2c94d884f52a93aa2462, type: 3}
+  m_PrefabInstance: {fileID: 218518052}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1670194617
 GameObject:
   m_ObjectHideFlags: 0
@@ -421,11 +479,11 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1670194617}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: -3.914, y: 1.808, z: 1.978}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}

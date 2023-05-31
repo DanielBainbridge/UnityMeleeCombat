@@ -209,6 +209,8 @@ public class CombatItemEditor : Editor
                         EditorGUILayout.PropertyField(currentHitbox.FindPropertyRelative("m_height"));
                         break;
                 }
+                EditorGUILayout.PropertyField(currentHitbox.FindPropertyRelative("m_offset"));
+                EditorGUILayout.PropertyField(currentHitbox.FindPropertyRelative("m_rotationOffset"));
                 EditorGUI.indentLevel--;
                 EditorGUILayout.Space(10);
 
@@ -256,7 +258,7 @@ public class CombatItemEditor : Editor
 
             if (GUILayout.Button($"Use Move: {m_thisCombatItemMoves[i].m_moveName}"))
             {
-                m_thisCombatItemMoves[i].UseMove();
+                m_thisCombatItem.UseMove(i);
             }
 
         }

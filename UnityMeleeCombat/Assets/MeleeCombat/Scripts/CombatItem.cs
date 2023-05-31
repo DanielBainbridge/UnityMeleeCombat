@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(Animator))]
@@ -9,8 +11,8 @@ public class CombatItem : MonoBehaviour
     [SerializeField] private Animator m_animator;
     [SerializeField] public List<Move> m_moves;
     [SerializeField] public List<HurtBox> m_hurtBoxes;
-    [SerializeField] private bool m_debugHurtBoxes;
-    [SerializeField] private bool m_debugHitBoxes;
+    [SerializeField] public bool m_debugHurtBoxes;
+    [SerializeField] public bool m_debugHitBoxes;
 
     private void OnEnable()
     {
@@ -86,6 +88,37 @@ public class CombatItem : MonoBehaviour
             m_hurtBoxes.RemoveAt(m_hurtBoxes.Count - 1);
         }
     }
+    public void UseMove(int moveLocation)
+    {
+        StartCoroutine(UseMoveCoroutine(moveLocation));
+    }
+
+    //feels like it should be inside of move but coroutines can only be called on monobehaviours gross
+    public IEnumerator UseMoveCoroutine(int moveLocation)
+    {
+        float secondsToWait = 1 / m_moves[moveLocation].GetMoveFrameRate();
+        if (m_moves[moveLocation].GetCurrentAnimationFrame() == 0)
+        {
+            m_moves[moveLocation].StartMove();
+        }
+
+        while(m_moves[moveLocation].GetCurrentAnimationFrame() <= m_moves[moveLocation].GetTotalAnimationFrames())
+        {
+            m_moves[moveLocation].ConstructHitBoxesPerFrame();
+            m_moves[moveLocation].DestroyHitBoxesPerFrame();
+
+            //waits 1 animation frame, not 1 in game frame
+            yield return new WaitForSeconds(secondsToWait);
+            //move forward one frame for next loop
+            m_moves[moveLocation].IncrementAnimationFrame();
+        }
+
+        m_moves[moveLocation].ResetCurrentFrame();
+        m_moves[moveLocation].StopMove();
+        yield return null;
+    }
+
+
     public void ClearHurtBoxes()
     {
         foreach (HurtBox hB in m_hurtBoxes)
