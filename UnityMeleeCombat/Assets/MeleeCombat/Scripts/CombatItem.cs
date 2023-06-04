@@ -4,7 +4,6 @@ using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(Animator))]
-[ExecuteInEditMode]
 public class CombatItem : MonoBehaviour
 {
     //the combat items stuff itself
@@ -13,17 +12,122 @@ public class CombatItem : MonoBehaviour
     [SerializeField] public List<HurtBox> m_hurtBoxes;
     [SerializeField] public bool m_debugHurtBoxes;
     [SerializeField] public bool m_debugHitBoxes;
+    [SerializeField] private bool m_debugHurtBoxesLastFrame;
+    [SerializeField] private bool m_debugHitBoxesLastFrame;
 
     private void OnEnable()
     {
         m_animator = GetComponent<Animator>();
+        if(m_moves == null)
+        {
+            m_moves = new List<Move>();
+        }
+        if(m_hurtBoxes == null)
+        {
+            m_hurtBoxes = new List<HurtBox>();
+        }
+        m_debugHitBoxesLastFrame = m_debugHitBoxes;
+        m_debugHurtBoxesLastFrame = m_debugHurtBoxes;
     }
 
-    public void GenerateHurtBoxes()
+    private void Update()
     {
-        Debug.Log("Generate Hurt Boxes Button Pressed");
-        //Do stuff on button press dummy
+        ResolveCollisions();
     }
+
+    public List<HitBox> CheckAllCollisions()
+    {
+        List<HitBox> collidingList = new List<HitBox>();
+        foreach(Move m in m_moves)
+        {
+            foreach(HitBox hB in m.m_moveHitBoxes)
+            {
+                if (hB.m_isColliding)
+                {
+                    collidingList.Add(hB);
+                }
+            }
+        }
+        return collidingList;
+    }
+
+    public void DoHitStop(HitBox hitBox)
+    {
+        if (hitBox.m_automaticHitStop)
+        {
+            float stopTime = (float)((hitBox.m_endFrame - hitBox.m_startFrame) / hitBox.m_endFrame) * hitBox.m_hitStopMultiplier;
+            StartCoroutine(HitStopForSeconds(stopTime));
+        }
+        else
+        {
+            StartCoroutine(HitStopForSeconds(hitBox.m_hitStopLength));
+        }
+    }
+
+    private IEnumerator HitStopForSeconds(float time)
+    {
+        Time.timeScale = 0;        
+        yield return new WaitForSecondsRealtime(time);
+        Time.timeScale = 1;
+    }
+
+    public void DoKnockBack(HitBox hitBox)
+    {
+        HurtBox receivingHurtBox = hitBox.m_collidingHurtBox;
+
+        if (hitBox.m_automaticKnockbackAngle)
+        {
+            //calcualte angle to knock back
+
+            if (receivingHurtBox.m_owner.GetComponent<Rigidbody>())
+            {
+                // physics with automatic knockback angle
+                // calculate force
+            }
+            else
+            { 
+                // raw translate with automatic knockback angle
+            
+            }
+        }
+        else
+        {
+            if (receivingHurtBox.m_owner.GetComponent<Rigidbody>())
+            {
+                // physics knockback
+                // calculate force
+            }
+            else
+            {
+                // raw translate
+                receivingHurtBox.m_owner.transform.Translate(Vector3.Normalize(Vector3.Cross(receivingHurtBox.m_owner.transform.forward, hitBox.m_knockbackAngle)) * hitBox.m_knockbackDistance);
+            }
+        }
+    }
+
+    public float GetDamage(HitBox hitBox)
+    {
+        if (hitBox.m_automaticDamageCalculation)
+        {
+            float invFrameLength = 1 / (float)(hitBox.m_endFrame - hitBox.m_startFrame);
+            invFrameLength += 1;
+            return hitBox.m_endFrame * invFrameLength;
+        }
+        return hitBox.m_damage;
+    }
+
+    virtual public void ResolveCollisions()
+    {
+        List<HitBox> collidingBoxes = CheckAllCollisions();
+        foreach (HitBox hB in collidingBoxes)
+        {
+            DoHitStop(hB);
+            DoKnockBack(hB);
+            hB.m_collidingHurtBox = null;
+            hB.m_isColliding = false;
+        }
+    }
+
 
     public void AddHurtBoxBox()
     {
@@ -88,13 +192,22 @@ public class CombatItem : MonoBehaviour
             m_hurtBoxes.RemoveAt(m_hurtBoxes.Count - 1);
         }
     }
+    public void ClearHurtBoxes()
+    {
+        foreach (HurtBox hB in m_hurtBoxes)
+        {
+            hB.DestroyHurtBox();
+        }
+        m_hurtBoxes.Clear();
+    }
+
     public void UseMove(int moveLocation)
     {
         StartCoroutine(UseMoveCoroutine(moveLocation));
     }
 
     //feels like it should be inside of move but coroutines can only be called on monobehaviours gross
-    public IEnumerator UseMoveCoroutine(int moveLocation)
+    private IEnumerator UseMoveCoroutine(int moveLocation)
     {
         float secondsToWait = 1 / m_moves[moveLocation].GetMoveFrameRate();
         if (m_moves[moveLocation].GetCurrentAnimationFrame() == 0)
@@ -102,7 +215,7 @@ public class CombatItem : MonoBehaviour
             m_moves[moveLocation].StartMove();
         }
 
-        while(m_moves[moveLocation].GetCurrentAnimationFrame() <= m_moves[moveLocation].GetTotalAnimationFrames())
+        while (m_moves[moveLocation].GetCurrentAnimationFrame() <= m_moves[moveLocation].GetTotalAnimationFrames())
         {
             m_moves[moveLocation].ConstructHitBoxesPerFrame();
             m_moves[moveLocation].DestroyHitBoxesPerFrame();
@@ -119,13 +232,27 @@ public class CombatItem : MonoBehaviour
     }
 
 
-    public void ClearHurtBoxes()
+    public void DebugBoxCheck()
     {
-        foreach (HurtBox hB in m_hurtBoxes)
-        {           
-            hB.DestroyHurtBox();
+        if (m_debugHurtBoxes != m_debugHurtBoxesLastFrame)
+        {
+            foreach (HurtBox hB in m_hurtBoxes)
+            {
+                hB.DebugHurtBoxesSwitch(m_debugHurtBoxes);
+            }
         }
-        m_hurtBoxes.Clear();
+        if (m_debugHitBoxes != m_debugHitBoxesLastFrame)
+        {
+            foreach (Move move in m_moves)
+            {
+                foreach (HitBox hB in move.m_moveHitBoxes)
+                {
+                    hB.DebugHitBoxesSwitch(m_debugHitBoxes);
+                }
+            }
+        }
+        m_debugHitBoxesLastFrame = m_debugHitBoxes;
+        m_debugHurtBoxesLastFrame = m_debugHurtBoxes;
     }
 
     public void AddMove()
@@ -150,9 +277,9 @@ public class CombatItem : MonoBehaviour
     }
     public void UpdateMove()
     {
-        foreach(Move m in m_moves)
+        foreach (Move m in m_moves)
         {
-            if(m.m_moveAnimation != null)
+            if (m.m_moveAnimation != null)
             {
                 m.m_moveName = m.m_moveAnimation.name;
                 m.SetTotalFrames();

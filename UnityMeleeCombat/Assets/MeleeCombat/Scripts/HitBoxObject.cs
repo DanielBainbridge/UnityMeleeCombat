@@ -5,26 +5,42 @@ using UnityEngine;
 public class HitBoxObject : MonoBehaviour
 {
     [HideInInspector] public HitBox m_hitbox;
-
-    private void OnTriggerEnter(Collider collision)
+    public List<HurtBoxObject> m_alreadyCollidedWithThisHurtBox = new List<HurtBoxObject>();
+    private void Update()
     {
-        //check if we collided with a hurt box
-        if(collision.gameObject.GetComponent<HurtBoxObject>() == null)
+        if (m_hitbox.m_owner.m_debugHurtBoxes)
         {
+            m_hitbox.UpdateDebugMeshSize();
+        }
+    }
+    private void OnCollisionEnter(Collision collision)
+    {    
+        //check if we collided with a hurt box
+        if (collision.gameObject.GetComponent<HurtBoxObject>() == null)
+        {
+            m_hitbox.m_isColliding = false;
             return;
         }
-
         HurtBoxObject collidingHurtBox = collision.gameObject.GetComponent<HurtBoxObject>();
 
-        //check we haven't hit our own hurt box
-        if(collidingHurtBox.m_hurtbox.m_owner == m_hitbox.m_owner)
+        foreach(HurtBoxObject hBO in m_alreadyCollidedWithThisHurtBox)
         {
+            if(hBO == collidingHurtBox)
+            {
+                return;
+            }
+        }
+
+        //check we haven't hit our own hurt box
+        if (collidingHurtBox.m_hurtbox.m_owner == m_hitbox.m_owner)
+        {
+            m_hitbox.m_isColliding = false;
             return;
         }
 
-        // TO DO resolve collisions we actually care about
-
-
+        m_hitbox.m_collidingHurtBox = collidingHurtBox.m_hurtbox;
+        m_hitbox.m_isColliding = true;
+        m_alreadyCollidedWithThisHurtBox.Add(collidingHurtBox);
     }
 
 }

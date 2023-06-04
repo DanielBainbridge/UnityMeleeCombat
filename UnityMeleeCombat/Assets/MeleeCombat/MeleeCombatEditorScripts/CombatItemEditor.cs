@@ -47,11 +47,7 @@ public class CombatItemEditor : Editor
         EditorGUILayout.Space(5);
 
         //creates a button in style that aligns button to a side
-        EditorGUILayout.LabelField("Hit Box Adding");
-        if (GUILayout.Button("Auto-Generate Hurt Boxes", EditorStyles.miniButtonLeft))
-        {
-            m_thisCombatItem.GenerateHurtBoxes();
-        }
+        EditorGUILayout.LabelField("Hurt Box Adding");
 
         //creates a horizontal group
         GUILayout.BeginHorizontal();
@@ -73,18 +69,18 @@ public class CombatItemEditor : Editor
         GUILayout.Space(7);
 
 
-        EditorGUILayout.LabelField("Hit Box Removal");
+        EditorGUILayout.LabelField("Hurt Box Removal");
         GUILayout.BeginHorizontal();
         //creates a button in style that aligns button to a side
         if (GUILayout.Button("- Remove Hurt Box -", EditorStyles.miniButton))
         {
             m_thisCombatItem.RemoveHurtBox();
-            m_thisCombatItemHurtBoxes.Clear();
+            m_thisCombatItemHurtBoxes = m_thisCombatItem.m_hurtBoxes;
         }
         if (GUILayout.Button("- Clear Hurt Boxes -", EditorStyles.miniButton))
         {
             m_thisCombatItem.ClearHurtBoxes();
-            m_thisCombatItemHurtBoxes.Clear();
+            m_thisCombatItemHurtBoxes = m_thisCombatItem.m_hurtBoxes;
         }
         //ends horizontal group for buttons
         GUILayout.EndHorizontal();
@@ -118,9 +114,11 @@ public class CombatItemEditor : Editor
                     EditorGUILayout.PropertyField(currentHurtBox.FindPropertyRelative("m_center"));
                     break;
             }
+            EditorGUILayout.PropertyField(currentHurtBox.FindPropertyRelative("m_hurtBoxParentObject"));
+
             EditorGUI.indentLevel--;
         }
-        for (int i = 0; i < m_thisCombatItemHurtBoxes.Count - 1; i++)
+        for (int i = 0; i < m_thisCombatItemHurtBoxes.Count; i++)
         {
             m_thisCombatItemHurtBoxes[i].UpdateHurtBoxObject();
         }
@@ -260,13 +258,16 @@ public class CombatItemEditor : Editor
             {
                 m_thisCombatItem.UseMove(i);
             }
-
+            EditorGUI.indentLevel--;
         }
         EditorGUILayout.Space(10);
 
 
         EditorGUILayout.PropertyField(serializedObject.FindProperty("m_debugHurtBoxes"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("m_debugHitBoxes"));
+
+
+        m_thisCombatItem.DebugBoxCheck();
 
         serializedObject.ApplyModifiedProperties();
     }
