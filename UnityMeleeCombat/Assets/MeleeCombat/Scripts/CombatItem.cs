@@ -15,19 +15,30 @@ public class CombatItem : MonoBehaviour
     [SerializeField] private bool m_debugHurtBoxesLastFrame;
     [SerializeField] private bool m_debugHitBoxesLastFrame;
 
+    private bool m_hitStopDone = false;
+    private bool m_knockbackDone = false;
+
+
     private void OnEnable()
     {
         m_animator = GetComponent<Animator>();
-        if(m_moves == null)
+        if (m_moves == null)
         {
             m_moves = new List<Move>();
         }
-        if(m_hurtBoxes == null)
+        if (m_hurtBoxes == null)
         {
             m_hurtBoxes = new List<HurtBox>();
         }
         m_debugHitBoxesLastFrame = m_debugHitBoxes;
         m_debugHurtBoxesLastFrame = m_debugHurtBoxes;
+        for (int i = 0; i < 31; i++)
+        {
+            if (LayerMask.NameToLayer("Melee") != i)
+            {
+                Physics.IgnoreLayerCollision(LayerMask.NameToLayer("Melee"), i);
+            }
+        }
     }
 
     private void Update()
@@ -38,9 +49,9 @@ public class CombatItem : MonoBehaviour
     public List<HitBox> CheckAllCollisions()
     {
         List<HitBox> collidingList = new List<HitBox>();
-        foreach(Move m in m_moves)
+        foreach (Move m in m_moves)
         {
-            foreach(HitBox hB in m.m_moveHitBoxes)
+            foreach (HitBox hB in m.m_moveHitBoxes)
             {
                 if (hB.m_isColliding)
                 {
@@ -66,43 +77,93 @@ public class CombatItem : MonoBehaviour
 
     private IEnumerator HitStopForSeconds(float time)
     {
-        Time.timeScale = 0;        
+        m_hitStopDone = false;
+        Time.timeScale = 0;
         yield return new WaitForSecondsRealtime(time);
         Time.timeScale = 1;
+        m_hitStopDone = true;
     }
 
     public void DoKnockBack(HitBox hitBox)
     {
+        
         HurtBox receivingHurtBox = hitBox.m_collidingHurtBox;
 
-        if (hitBox.m_automaticKnockbackAngle)
-        {
-            //calcualte angle to knock back
+        //conditional displacement angle based on if it should be automatically calculated
+        Vector3 displacementAngle = hitBox.m_automaticKnockbackAngle ?
+            Vector3.Normalize(receivingHurtBox.m_hurtBoxObject.transform.position - hitBox.m_hitBoxObject.transform.position) :
+            new Vector3(Mathf.Sin(hitBox.m_knockbackAngle.x), Mathf.Sin(hitBox.m_knockbackAngle.y), Mathf.Sin(hitBox.m_knockbackAngle.z));
 
-            if (receivingHurtBox.m_owner.GetComponent<Rigidbody>())
-            {
-                // physics with automatic knockback angle
-                // calculate force
-            }
-            else
-            { 
-                // raw translate with automatic knockback angle
-            
-            }
+        Vector3 goal = displacementAngle * hitBox.m_knockbackDistance;
+
+        if(hitBox == null)
+        {
+            Debug.Log("HitBox is null");
+        }
+        if(receivingHurtBox == null)
+        {
+            Debug.Log("HurtBox is null");
+        }
+        if(receivingHurtBox.m_owner == null)
+        {
+            Debug.Log("Hurtbox owner is null");
+        }
+        if (receivingHurtBox.m_owner.GetComponent<Rigidbody>() == null)
+        {
+            Debug.Log("shits fucked");
+        }
+
+
+        if (receivingHurtBox.m_owner.GetComponent<Rigidbody>() != null)
+        {
+            Rigidbody receivingBody = receivingHurtBox.m_owner.GetComponent<Rigidbody>();
+            // physics knockback
+            StartCoroutine(KnockBackWithForce(receivingBody, hitBox.m_knockbackTime, goal));
         }
         else
         {
-            if (receivingHurtBox.m_owner.GetComponent<Rigidbody>())
-            {
-                // physics knockback
-                // calculate force
-            }
-            else
-            {
-                // raw translate
-                receivingHurtBox.m_owner.transform.Translate(Vector3.Normalize(Vector3.Cross(receivingHurtBox.m_owner.transform.forward, hitBox.m_knockbackAngle)) * hitBox.m_knockbackDistance);
-            }
+            // raw translate
+            StartCoroutine(KnockBackRaw(receivingHurtBox.m_owner.transform, hitBox.m_knockbackTime, goal));
         }
+
+    }
+    private IEnumerator KnockBackWithForce(Rigidbody rB, float totalTime, Vector3 goal)
+    {
+        m_knockbackDone = false;
+        float timeIncremement = 0;
+        rB.AddForce(2 * goal / totalTime, ForceMode.VelocityChange);
+        if (totalTime == 0)
+        {
+            rB.transform.Translate(goal);
+            yield return null;
+        }
+
+        while (timeIncremement < totalTime)
+        {
+            rB.AddForce(-2 * goal / totalTime / totalTime, ForceMode.Acceleration);
+            yield return 0;
+            timeIncremement += Time.deltaTime;
+        }
+        m_knockbackDone = true;
+    }
+
+    private IEnumerator KnockBackRaw(Transform obj, float totalTime, Vector3 goal)
+    {
+        m_knockbackDone = false;
+        float timeIncremement = 0;
+        Vector3 objOriginalPos = obj.position;
+        if (totalTime == 0)
+        {
+            obj.Translate(goal);
+            yield return null;
+        }
+        while (timeIncremement < totalTime)
+        {
+            obj.position = Vector3.Lerp(objOriginalPos, objOriginalPos + goal, timeIncremement / totalTime);
+            yield return 0;
+            timeIncremement += Time.deltaTime;
+        }
+        m_knockbackDone = true;
     }
 
     public float GetDamage(HitBox hitBox)
@@ -115,16 +176,35 @@ public class CombatItem : MonoBehaviour
         }
         return hitBox.m_damage;
     }
+    public IEnumerator HitBoxStandardSolve(HitBox hB)
+    {
+        
+        DoHitStop(hB);
+        yield return new WaitWhile(GetHitStopDone);
+        DoKnockBack(hB);
+        yield return new WaitWhile(GetKnockBackDone);
+
+       //hB.m_collidingHurtBox = null;
+       //hB.m_isColliding = false;
+
+    }
+    private bool GetHitStopDone()
+    {
+        return m_hitStopDone;
+    }
+    private bool GetKnockBackDone()
+    {
+        return m_knockbackDone;
+    }
 
     virtual public void ResolveCollisions()
     {
         List<HitBox> collidingBoxes = CheckAllCollisions();
         foreach (HitBox hB in collidingBoxes)
         {
-            DoHitStop(hB);
-            DoKnockBack(hB);
-            hB.m_collidingHurtBox = null;
-            hB.m_isColliding = false;
+
+            StartCoroutine(HitBoxStandardSolve(hB));
+            
         }
     }
 
@@ -134,15 +214,6 @@ public class CombatItem : MonoBehaviour
         HurtBox newHurtBox = new HurtBox(HurtBox.Shape.Box, transform);
         newHurtBox.NameHurtBoxObject($"Hurt Box {m_hurtBoxes.Count + 1}: Box");
 
-        if (GetComponentInChildren<MeshRenderer>())
-        {
-            newHurtBox.SetBoxHurtBoxObject(GetComponentInChildren<MeshRenderer>().bounds.extents, GetComponentInChildren<MeshRenderer>().bounds.center);
-        }
-        else if (GetComponentInChildren<SkinnedMeshRenderer>())
-        {
-            newHurtBox.SetBoxHurtBoxObject(GetComponentInChildren<SkinnedMeshRenderer>().bounds.extents, GetComponentInChildren<SkinnedMeshRenderer>().bounds.center);
-        }
-
         m_hurtBoxes.Add(newHurtBox);
     }
     public void AddHurtBoxSphere()
@@ -150,36 +221,12 @@ public class CombatItem : MonoBehaviour
         HurtBox newHurtBox = new HurtBox(HurtBox.Shape.Sphere, transform);
         newHurtBox.NameHurtBoxObject($"Hurt Box {m_hurtBoxes.Count + 1}: Sphere");
 
-        if (GetComponentInChildren<MeshRenderer>())
-        {
-            newHurtBox.SetSphereHurtBoxObject(GetComponentInChildren<MeshRenderer>().bounds.extents.y, GetComponentInChildren<MeshRenderer>().bounds.center);
-        }
-        else if (GetComponentInChildren<SkinnedMeshRenderer>())
-        {
-            newHurtBox.SetSphereHurtBoxObject(GetComponentInChildren<SkinnedMeshRenderer>().bounds.extents.y, GetComponentInChildren<SkinnedMeshRenderer>().bounds.center);
-        }
-
         m_hurtBoxes.Add(newHurtBox);
     }
     public void AddHurtBoxCapsule()
     {
         HurtBox newHurtBox = new HurtBox(HurtBox.Shape.Capsule, transform);
         newHurtBox.NameHurtBoxObject($"Hurt Box {m_hurtBoxes.Count + 1}: Capsule");
-
-        if (GetComponentInChildren<MeshRenderer>())
-        {
-            newHurtBox.SetCapsuleHurtBoxObject(
-            GetComponentInChildren<MeshRenderer>().bounds.extents.x,
-            GetComponentInChildren<MeshRenderer>().bounds.extents.y,
-            GetComponentInChildren<MeshRenderer>().bounds.center);
-        }
-        else if (GetComponentInChildren<SkinnedMeshRenderer>())
-        {
-            newHurtBox.SetCapsuleHurtBoxObject(
-            GetComponentInChildren<SkinnedMeshRenderer>().bounds.extents.x,
-            GetComponentInChildren<SkinnedMeshRenderer>().bounds.extents.y,
-            GetComponentInChildren<SkinnedMeshRenderer>().bounds.center);
-        }
 
         m_hurtBoxes.Add(newHurtBox);
     }

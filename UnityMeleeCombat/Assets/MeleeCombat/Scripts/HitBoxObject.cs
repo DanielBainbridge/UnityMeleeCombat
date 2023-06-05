@@ -27,6 +27,7 @@ public class HitBoxObject : MonoBehaviour
         {
             if(hBO == collidingHurtBox)
             {
+                m_hitbox.m_isColliding = false;
                 return;
             }
         }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 [Serializable]
 public class HitBox
@@ -30,6 +31,7 @@ public class HitBox
     [SerializeField] public float m_knockbackDistance;
     [SerializeField] [Tooltip("Calculate Knockback Automatically based on angle that hitbox hits a hurtbox")] public bool m_automaticKnockbackAngle;
     [SerializeField] public Vector3 m_knockbackAngle;
+    [SerializeField] [Tooltip("Time in seconds for knockbackto start")] public float m_knockbackTime;
     [SerializeField] [Tooltip("Calculate Hit Stop scaling with damage dealt, more damage more hit stop")] public bool m_automaticHitStop;
     [SerializeField] public float m_hitStopLength;
     [SerializeField] public float m_hitStopMultiplier;
@@ -52,6 +54,9 @@ public class HitBox
         GameObject newHitBox = new GameObject();
         newHitBox.AddComponent<HitBoxObject>();
         newHitBox.GetComponent<HitBoxObject>().m_hitbox = this;
+        Assert.IsFalse(LayerMask.NameToLayer("Melee") == -1, "You Need To Create A Layer Named \"Melee\"");
+        newHitBox.layer = LayerMask.NameToLayer("Melee");
+        
         m_owner = m_parentTransform.GetComponent<CombatItem>();
         if (m_owner == null)
         {
@@ -62,6 +67,7 @@ public class HitBox
         newHitBox.transform.localRotation = Quaternion.Euler(m_rotationOffset);
         newHitBox.name = $"Hit Box: {m_shape}";
         Rigidbody newHitBoxRigidbody = newHitBox.AddComponent<Rigidbody>();
+        
         newHitBoxRigidbody.constraints = RigidbodyConstraints.FreezeAll;
         newHitBoxRigidbody.collisionDetectionMode = CollisionDetectionMode.Continuous;
         newHitBoxRigidbody.useGravity = false;

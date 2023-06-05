@@ -236,6 +236,7 @@ public class CombatItemEditor : Editor
                     EditorGUILayout.PropertyField(currentHitbox.FindPropertyRelative("m_knockbackAngle"));
                 }
                 EditorGUILayout.PropertyField(currentHitbox.FindPropertyRelative("m_knockbackDistance"));
+                EditorGUILayout.PropertyField(currentHitbox.FindPropertyRelative("m_knockbackTime"));
                 EditorGUILayout.Space(5);
 
                 SerializedProperty autoHitStop = currentHitbox.FindPropertyRelative("m_automaticHitStop");

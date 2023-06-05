@@ -44,8 +44,11 @@ public class HurtBox
         newHurtBoxObject.AddComponent<HurtBoxObject>();
         newHurtBoxObject.GetComponent<HurtBoxObject>().m_hurtbox = this;
         newHurtBoxObject.transform.parent = m_owner.transform;
+        newHurtBoxObject.transform.localPosition = Vector3.zero;
         Rigidbody newHurtBoxRigidbody = newHurtBoxObject.AddComponent<Rigidbody>();
         newHurtBoxRigidbody.isKinematic = true;
+        Assert.IsFalse(LayerMask.NameToLayer("Melee") == -1, "You Need To Create A Layer Named \"Melee\"");
+        newHurtBoxObject.layer = LayerMask.NameToLayer("Melee");
 
         newHurtBoxObject.AddComponent<MeshRenderer>();
         MeshRenderer newHurtBoxMeshRenderer = newHurtBoxObject.GetComponent<MeshRenderer>();
@@ -62,7 +65,6 @@ public class HurtBox
             case Shape.Box:
                 BoxCollider boxCollider = newHurtBoxObject.AddComponent<BoxCollider>();
                 boxCollider.size = new Vector3(m_width, m_height, m_depth);
-                boxCollider.center = m_center;
 
                 GameObject tempBox = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 newMesh.vertices = tempBox.GetComponent<MeshFilter>().sharedMesh.vertices;
@@ -76,7 +78,6 @@ public class HurtBox
             case Shape.Sphere:
                 SphereCollider sphereCollider = newHurtBoxObject.AddComponent<SphereCollider>();
                 sphereCollider.radius = m_radius;
-                sphereCollider.center = m_center;
 
                 GameObject tempSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 newMesh.vertices = tempSphere.GetComponent<MeshFilter>().sharedMesh.vertices;
@@ -236,20 +237,17 @@ public class HurtBox
             case Shape.Box:
                 BoxCollider boxCollider = m_hurtBoxObject.GetComponent<BoxCollider>();
                 boxCollider.size = new Vector3(m_width, m_height, m_depth);
-                boxCollider.center = m_center;
                 m_hurtBoxObject.transform.localPosition = m_center;
                 break;
             case Shape.Sphere:
                 SphereCollider sphereCollider = m_hurtBoxObject.GetComponent<SphereCollider>();
                 sphereCollider.radius = m_radius;
-                sphereCollider.center = m_center;
                 m_hurtBoxObject.transform.localPosition = m_center;
                 break;
             case Shape.Capsule:
                 CapsuleCollider capsuleCollider = m_hurtBoxObject.GetComponent<CapsuleCollider>();
                 capsuleCollider.radius = m_radius;
                 capsuleCollider.height = m_height;
-                capsuleCollider.center = m_center;
                 m_hurtBoxObject.transform.localPosition = m_center;
                 break;
         }
