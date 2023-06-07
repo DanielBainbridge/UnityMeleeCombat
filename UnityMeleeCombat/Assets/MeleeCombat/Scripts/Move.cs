@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEditor.Animations;
+//commented out for build
+//using UnityEditor.Animations;
+
 using UnityEngine;
 
 [Serializable]
@@ -76,33 +78,32 @@ public class Move
         m_animator.Play("No Motion");
     }
 
+    //public bool IsMoveInAnimator()
+    //{
+    //    List<AnimatorState> animStates = new List<AnimatorState>();
+    //    AnimatorController animatorController = UnityEditor.AssetDatabase.LoadAssetAtPath<AnimatorController>(UnityEditor.AssetDatabase.GetAssetPath(m_animator.runtimeAnimatorController));
+    //    foreach (AnimatorControllerLayer aCL in animatorController.layers)
+    //    {
+    //        ChildAnimatorState[] childAnimStates = aCL.stateMachine.states;
+    //        foreach (ChildAnimatorState cAS in childAnimStates)
+    //        {
+    //            animStates.Add(cAS.state);
+    //        }
+    //    }
 
-    public bool IsMoveInAnimator()
-    {
-        List<AnimatorState> animStates = new List<AnimatorState>();
-        AnimatorController animatorController = UnityEditor.AssetDatabase.LoadAssetAtPath<AnimatorController>(UnityEditor.AssetDatabase.GetAssetPath(m_animator.runtimeAnimatorController));
-        foreach (AnimatorControllerLayer aCL in animatorController.layers)
-        {
-            ChildAnimatorState[] childAnimStates = aCL.stateMachine.states;
-            foreach (ChildAnimatorState cAS in childAnimStates)
-            {
-                animStates.Add(cAS.state);
-            }
-        }
+    //    foreach (AnimatorState aS in animStates)
+    //    {
+    //        if (aS.name == m_moveName)
+    //        {
+    //            return true;
+    //        }
+    //    }
+    //    return false;
+    //}
 
-        foreach (AnimatorState aS in animStates)
-        {
-            if (aS.name == m_moveName)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void AddMoveToAnimator()
-    {
-        AnimatorController animatorController = UnityEditor.AssetDatabase.LoadAssetAtPath<AnimatorController>(UnityEditor.AssetDatabase.GetAssetPath(m_animator.runtimeAnimatorController));
-        animatorController.AddMotion(m_moveAnimation, 0);
-    }
+    //public void AddMoveToAnimator()
+    //{
+    //    AnimatorController animatorController = UnityEditor.AssetDatabase.LoadAssetAtPath<AnimatorController>(UnityEditor.AssetDatabase.GetAssetPath(m_animator.runtimeAnimatorController));
+    //    animatorController.AddMotion(m_moveAnimation, 0);
+    //}
 }

@@ -14,6 +14,7 @@ public class CombatItem : MonoBehaviour
     [SerializeField] public bool m_debugHitBoxes;
     [SerializeField] private bool m_debugHurtBoxesLastFrame;
     [SerializeField] private bool m_debugHitBoxesLastFrame;
+    private bool m_moveBeingUsed = false;
 
     private bool m_hitStopDone = false;
     private bool m_knockbackDone = false;
@@ -86,7 +87,7 @@ public class CombatItem : MonoBehaviour
 
     public void DoKnockBack(HitBox hitBox)
     {
-        
+
         HurtBox receivingHurtBox = hitBox.m_collidingHurtBox;
 
         //conditional displacement angle based on if it should be automatically calculated
@@ -95,24 +96,6 @@ public class CombatItem : MonoBehaviour
             new Vector3(Mathf.Sin(hitBox.m_knockbackAngle.x), Mathf.Sin(hitBox.m_knockbackAngle.y), Mathf.Sin(hitBox.m_knockbackAngle.z));
 
         Vector3 goal = displacementAngle * hitBox.m_knockbackDistance;
-
-        if(hitBox == null)
-        {
-            Debug.Log("HitBox is null");
-        }
-        if(receivingHurtBox == null)
-        {
-            Debug.Log("HurtBox is null");
-        }
-        if(receivingHurtBox.m_owner == null)
-        {
-            Debug.Log("Hurtbox owner is null");
-        }
-        if (receivingHurtBox.m_owner.GetComponent<Rigidbody>() == null)
-        {
-            Debug.Log("shits fucked");
-        }
-
 
         if (receivingHurtBox.m_owner.GetComponent<Rigidbody>() != null)
         {
@@ -123,31 +106,35 @@ public class CombatItem : MonoBehaviour
         else
         {
             // raw translate
-            StartCoroutine(KnockBackRaw(receivingHurtBox.m_owner.transform, hitBox.m_knockbackTime, goal));
+            StartCoroutine(KnockBackRaw(receivingHurtBox.m_owner.transform, hitBox.m_knockbackTime, goal, hitBox));
+
         }
 
     }
+
+    //not working as intended way too much force being added
     private IEnumerator KnockBackWithForce(Rigidbody rB, float totalTime, Vector3 goal)
     {
         m_knockbackDone = false;
-        float timeIncremement = 0;
-        rB.AddForce(2 * goal / totalTime, ForceMode.VelocityChange);
         if (totalTime == 0)
         {
             rB.transform.Translate(goal);
-            yield return null;
+            m_knockbackDone = true;
+            yield break;
         }
 
+        float timeIncremement = 0;
+        rB.AddForce(2 * goal / totalTime, ForceMode.VelocityChange);
         while (timeIncremement < totalTime)
         {
             rB.AddForce(-2 * goal / totalTime / totalTime, ForceMode.Acceleration);
-            yield return 0;
-            timeIncremement += Time.deltaTime;
+            yield return new WaitForFixedUpdate();
+            timeIncremement += Time.fixedDeltaTime;
         }
         m_knockbackDone = true;
     }
 
-    private IEnumerator KnockBackRaw(Transform obj, float totalTime, Vector3 goal)
+    private IEnumerator KnockBackRaw(Transform obj, float totalTime, Vector3 goal, HitBox hitBox)
     {
         m_knockbackDone = false;
         float timeIncremement = 0;
@@ -178,23 +165,21 @@ public class CombatItem : MonoBehaviour
     }
     public IEnumerator HitBoxStandardSolve(HitBox hB)
     {
-        
+        //stops hitbox from being solved twice
+        hB.m_isColliding = false;
         DoHitStop(hB);
         yield return new WaitWhile(GetHitStopDone);
         DoKnockBack(hB);
         yield return new WaitWhile(GetKnockBackDone);
 
-       //hB.m_collidingHurtBox = null;
-       //hB.m_isColliding = false;
-
     }
     private bool GetHitStopDone()
     {
-        return m_hitStopDone;
+        return !m_hitStopDone;
     }
     private bool GetKnockBackDone()
     {
-        return m_knockbackDone;
+        return !m_knockbackDone;
     }
 
     virtual public void ResolveCollisions()
@@ -202,9 +187,7 @@ public class CombatItem : MonoBehaviour
         List<HitBox> collidingBoxes = CheckAllCollisions();
         foreach (HitBox hB in collidingBoxes)
         {
-
             StartCoroutine(HitBoxStandardSolve(hB));
-            
         }
     }
 
@@ -250,12 +233,16 @@ public class CombatItem : MonoBehaviour
 
     public void UseMove(int moveLocation)
     {
-        StartCoroutine(UseMoveCoroutine(moveLocation));
+        if (!m_moveBeingUsed)
+        {
+            StartCoroutine(UseMoveCoroutine(moveLocation));
+        }
     }
 
     //feels like it should be inside of move but coroutines can only be called on monobehaviours gross
     private IEnumerator UseMoveCoroutine(int moveLocation)
     {
+        m_moveBeingUsed = true;
         float secondsToWait = 1 / m_moves[moveLocation].GetMoveFrameRate();
         if (m_moves[moveLocation].GetCurrentAnimationFrame() == 0)
         {
@@ -273,9 +260,10 @@ public class CombatItem : MonoBehaviour
             m_moves[moveLocation].IncrementAnimationFrame();
         }
 
+        yield return new WaitForSeconds(secondsToWait * m_moves[moveLocation].GetMoveFrameRate());
         m_moves[moveLocation].ResetCurrentFrame();
         m_moves[moveLocation].StopMove();
-        yield return null;
+        m_moveBeingUsed = false;
     }
 
 
@@ -300,6 +288,11 @@ public class CombatItem : MonoBehaviour
         }
         m_debugHitBoxesLastFrame = m_debugHitBoxes;
         m_debugHurtBoxesLastFrame = m_debugHurtBoxes;
+    }
+    public void ToggleDebug()
+    {
+        m_debugHitBoxes = !m_debugHitBoxes;
+        m_debugHurtBoxes = !m_debugHurtBoxes;
     }
 
     public void AddMove()
@@ -330,10 +323,10 @@ public class CombatItem : MonoBehaviour
             {
                 m.m_moveName = m.m_moveAnimation.name;
                 m.SetTotalFrames();
-                if (!m.IsMoveInAnimator())
-                {
-                    m.AddMoveToAnimator();
-                }
+                //if (!m.IsMoveInAnimator())
+                //{
+                //    m.AddMoveToAnimator();
+                //}
             }
         }
     }

@@ -65,6 +65,7 @@ public class HurtBox
             case Shape.Box:
                 BoxCollider boxCollider = newHurtBoxObject.AddComponent<BoxCollider>();
                 boxCollider.size = new Vector3(m_width, m_height, m_depth);
+                boxCollider.isTrigger = true;
 
                 GameObject tempBox = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 newMesh.vertices = tempBox.GetComponent<MeshFilter>().sharedMesh.vertices;
@@ -78,6 +79,7 @@ public class HurtBox
             case Shape.Sphere:
                 SphereCollider sphereCollider = newHurtBoxObject.AddComponent<SphereCollider>();
                 sphereCollider.radius = m_radius;
+                sphereCollider.isTrigger = true;
 
                 GameObject tempSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 newMesh.vertices = tempSphere.GetComponent<MeshFilter>().sharedMesh.vertices;
@@ -93,6 +95,7 @@ public class HurtBox
                 capsuleCollider.height = m_height;
                 capsuleCollider.radius = m_radius;
                 capsuleCollider.center = m_center;
+                capsuleCollider.isTrigger = true;
 
                 GameObject tempCylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
                 newMesh.vertices = tempCylinder.GetComponent<MeshFilter>().sharedMesh.vertices;

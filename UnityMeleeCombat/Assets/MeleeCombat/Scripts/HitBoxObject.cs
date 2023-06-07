@@ -13,7 +13,7 @@ public class HitBoxObject : MonoBehaviour
             m_hitbox.UpdateDebugMeshSize();
         }
     }
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider collision)
     {    
         //check if we collided with a hurt box
         if (collision.gameObject.GetComponent<HurtBoxObject>() == null)
