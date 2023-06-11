@@ -8,8 +8,8 @@ public class CombatItem : MonoBehaviour
 {
     //the combat items stuff itself
     [SerializeField] private Animator m_animator;
-    [SerializeField] public List<Move> m_moves;
-    [SerializeField] public List<HurtBox> m_hurtBoxes;
+    [SerializeField] public List<Move> m_moves = new List<Move>();
+    [SerializeField] public List<HurtBox> m_hurtBoxes = new List<HurtBox>();
     [SerializeField] public bool m_debugHurtBoxes;
     [SerializeField] public bool m_debugHitBoxes;
     [SerializeField] private bool m_debugHurtBoxesLastFrame;
@@ -45,6 +45,12 @@ public class CombatItem : MonoBehaviour
     private void Update()
     {
         ResolveCollisions();
+    }
+
+
+    public void UpdateAnimator()
+    {
+        m_animator = GetComponent<Animator>();
     }
 
     public List<HitBox> CheckAllCollisions()
@@ -323,10 +329,10 @@ public class CombatItem : MonoBehaviour
             {
                 m.m_moveName = m.m_moveAnimation.name;
                 m.SetTotalFrames();
-                //if (!m.IsMoveInAnimator())
-                //{
-                //    m.AddMoveToAnimator();
-                //}
+                if (!m.IsMoveInAnimator())
+                {
+                    m.AddMoveToAnimator();
+                }
             }
         }
     }

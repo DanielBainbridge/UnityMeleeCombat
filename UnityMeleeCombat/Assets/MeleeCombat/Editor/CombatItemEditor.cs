@@ -25,6 +25,7 @@ public class CombatItemEditor : Editor
         m_hurtBoxes = serializedObject.FindProperty("m_hurtBoxes");
         //defines variable as a Combat Item
         m_thisCombatItem = target.GetComponent<CombatItem>();
+        m_thisCombatItem.UpdateAnimator();
         m_thisCombatItemHurtBoxes = m_thisCombatItem.m_hurtBoxes;
         m_thisCombatItemMoves = m_thisCombatItem.m_moves;
     }
