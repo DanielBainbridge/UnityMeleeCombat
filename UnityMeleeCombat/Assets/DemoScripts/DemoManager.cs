@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+using MeleeCombatTool;
 public class DemoManager : MonoBehaviour
 {
     public Transform m_defenceObject;

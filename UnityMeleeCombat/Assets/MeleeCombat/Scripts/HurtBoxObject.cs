@@ -1,20 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-[ExecuteInEditMode]
-public class HurtBoxObject : MonoBehaviour
+namespace MeleeCombatTool
 {
-    [HideInInspector] public HurtBox m_hurtbox;
+    [ExecuteInEditMode]
+    public class HurtBoxObject : MonoBehaviour
+    {
+        [HideInInspector] public HurtBox m_hurtbox;
 
-    private void Update()
-    {
-        if (m_hurtbox.m_owner.m_debugHurtBoxes)
+        //Update the debug mesh of the hurt box
+        private void Update()
         {
-            m_hurtbox.UpdateDebugMeshSize();
+            if (m_hurtbox.m_owner.m_debugHurtBoxes)
+            {
+                m_hurtbox.UpdateDebugMeshSize();
+            }
         }
-    }
-    public void StupidDestroyHurtBox()
-    {
-        DestroyImmediate(this.gameObject);
+        //Destroy the hurtbox object
+        public void DestroyHurtBox()
+        {
+            DestroyImmediate(this.gameObject);
+        }
     }
 }
